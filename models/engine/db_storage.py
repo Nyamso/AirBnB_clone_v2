@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+"""Defines the DBStorage engine."""
 from os import getenv
 from models.base_model import Base
 from models.base_model import BaseModel
@@ -12,24 +14,34 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
+
 class DBStorage:
+    """Represents a database storage engine.
+    Attributes:
+        __engine (sqlalchemy.Engine): The working SQLAlchemy engine.
+        __session (sqlalchemy.Session): The working SQLAlchemy session.
+    """
 
-     __engine = None
-     __session = None
+    __engine = None
+    __session = None
 
-     def __init__(self):
-         self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".
-                                       format(getenv("HBNB_MYSQL_USER"),
-                                              getenv("HBNB_MYSQL_PWD"),
-                                              getenv("HBNB_MYSQL_HOST"),
-                                              getenv("HBNB_MYSQL_DB")),
-                                       pool_pre_ping=True)
-         if getenv("HBNB_ENV") == "test":
-             Base.metadata.drop_all(self.__engine)
+    def __init__(self):
+        """Initialize a new DBStorage instance."""
+        self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".
+                                      format(getenv("HBNB_MYSQL_USER"),
+                                             getenv("HBNB_MYSQL_PWD"),
+                                             getenv("HBNB_MYSQL_HOST"),
+                                             getenv("HBNB_MYSQL_DB")),
+                                      pool_pre_ping=True)
+        if getenv("HBNB_ENV") == "test":
+            Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """Query and return all objects by class/generally"""
-        obj_dict = {}
+        """Query on the curret database session all objects of the given class.
+        If cls is None, queries all types of objects.
+        Return:
+            Dict of queried classes in the format <class name>.<obj id> = obj.
+        """
         if cls is None:
             objs = self.__session.query(State).all()
             objs.extend(self.__session.query(City).all())
